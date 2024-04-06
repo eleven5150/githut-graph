@@ -66,7 +66,7 @@ class LangData:
             sum_counts=sum_counts
         )
 
-    def plot_graph(self) -> None:
+    def plot_graph(self, width: int, height: int) -> None:
 
         for lang, counts in self.stats.items():
             years: list[float] = list()
@@ -76,13 +76,18 @@ class LangData:
 
                 sum_count: int = self.sum_counts[f"{count.year}.{count.quarter}"]
                 values.append(count.count / sum_count)
-            plt.plot(years, values, label=lang)
+            plt.plot(years, values, label=lang, linewidth=5.0)
+
         plt.yscale("log")
-        plt.legend(bbox_to_anchor=(1.0, 1.0), loc="upper left")
+        leg = plt.legend(bbox_to_anchor=(0.96, 1.0), loc="upper left")
+        for text in leg.get_texts():
+            text.set_fontsize(20)
+
+        plt.title("Количество репозиториев на GitHub, % от общего числа", fontsize=30)
         plt.gca().yaxis.set_major_formatter(mtick.PercentFormatter(xmax=1.0))
         plt.grid()
 
-        plt.gcf().set_size_inches(16, 9)
+        plt.gcf().set_size_inches(width, height)
         plt.savefig("graph.png", dpi=600)
         # plt.show()
 
@@ -98,7 +103,7 @@ def parse_args() -> Namespace:
                         required=True,
                         help="Width of graph in inches")
     parser.add_argument("-t", "--tallness",
-                        type=Path,
+                        type=int,
                         required=True,
                         help="Height of graph in inches")
     parser.add_argument("-l", "--languages",
@@ -129,7 +134,7 @@ def main() -> None:
 
     lang_data: LangData = LangData.prepare_lang_data(stats, args.languages)
 
-    lang_data.plot_graph()
+    lang_data.plot_graph(args.width, args.tallness)
 
 
 if __name__ == '__main__':
