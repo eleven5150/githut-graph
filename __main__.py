@@ -85,6 +85,8 @@ class LangData:
 
         plt.title("Количество репозиториев на GitHub, % от общего числа", fontsize=30)
         plt.gca().yaxis.set_major_formatter(mtick.PercentFormatter(xmax=1.0))
+        plt.xticks(fontsize=20)
+        plt.yticks(fontsize=20)
         plt.grid()
 
         plt.gcf().set_size_inches(width, height)
