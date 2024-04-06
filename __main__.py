@@ -4,6 +4,11 @@ from dataclasses import dataclass
 from pathlib import Path
 from argparse import Namespace
 import matplotlib.pyplot as plt
+import matplotlib.ticker as mtick
+
+
+def quarter_to_float(quarter: int) -> float:
+    return (quarter - 1) * 0.25
 
 
 @dataclass
@@ -64,17 +69,22 @@ class LangData:
     def plot_graph(self) -> None:
 
         for lang, counts in self.stats.items():
-            years: list[str] = list()
+            years: list[float] = list()
             values: list[float] = list()
             for count in counts:
-                years.append(f"{count.year}.{count.quarter}")
+                years.append(count.year + quarter_to_float(count.quarter))
 
                 sum_count: int = self.sum_counts[f"{count.year}.{count.quarter}"]
                 values.append(count.count / sum_count)
             plt.plot(years, values, label=lang)
+        plt.yscale("log")
+        plt.legend(bbox_to_anchor=(1.0, 1.0), loc="upper left")
+        plt.gca().yaxis.set_major_formatter(mtick.PercentFormatter(xmax=1.0))
+        plt.grid()
 
-        plt.legend()
-        plt.show()
+        plt.gcf().set_size_inches(16, 9)
+        plt.savefig("graph.png", dpi=600)
+        # plt.show()
 
 
 def parse_args() -> Namespace:
@@ -83,6 +93,14 @@ def parse_args() -> Namespace:
                         type=Path,
                         required=True,
                         help="Path input json file")
+    parser.add_argument("-w", "--width",
+                        type=int,
+                        required=True,
+                        help="Width of graph in inches")
+    parser.add_argument("-t", "--tallness",
+                        type=Path,
+                        required=True,
+                        help="Height of graph in inches")
     parser.add_argument("-l", "--languages",
                         nargs="+",
                         required=True,
